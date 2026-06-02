@@ -9,10 +9,11 @@ export const AppWindow: React.FC<{ activeTab: TabName; children: React.ReactNode
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  // Entrance: spring translate + scale. Opacity fade is owned by the scene
+  // wrapper (sceneOpacity) so we don't compound two fades into a steeper one.
   const enter = spring({ frame, fps, config: SPRING.smooth });
   const translateY = interpolate(enter, [0, 1], [40, 0]);
   const scale = interpolate(enter, [0, 1], [0.96, 1]);
-  const opacity = interpolate(frame, [0, 12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", fontFamily: FONT.family }}>
@@ -24,7 +25,6 @@ export const AppWindow: React.FC<{ activeTab: TabName; children: React.ReactNode
           boxShadow: SHADOW.window,
           overflow: "hidden",
           transform: `translateY(${translateY}px) scale(${scale})`,
-          opacity,
         }}
       >
         {/* Tab bar */}

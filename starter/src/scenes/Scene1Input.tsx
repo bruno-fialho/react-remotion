@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { AppWindow, SceneHeader, Panel, PrimaryButton, InputField, AnimatedEntry, Badge, Cursor } from "../components";
+import { AppWindow, SceneHeader, Panel, PrimaryButton, InputField, AnimatedEntry, Badge, Cursor, ProgressBar } from "../components";
 import { C, TEXT, RADIUS } from "../design/tokens";
 import { MOCK_CHANNEL } from "../mock";
 
@@ -30,7 +30,10 @@ export const Scene1Input: React.FC = () => {
         <InputField value={MOCK_CHANNEL.url} startFrame={6} valid={urlValid} style={{ marginBottom: 28 }} />
 
         {loading && (
-          <div style={{ ...TEXT.body, color: C.inkMuted }}>Analyzing channel{dots}</div>
+          <div>
+            <div style={{ ...TEXT.body, color: C.inkMuted, marginBottom: 14 }}>Analyzing channel{dots}</div>
+            <ProgressBar startFrame={80} endFrame={124} />
+          </div>
         )}
 
         {revealed && (

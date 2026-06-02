@@ -10,7 +10,12 @@ export const Scene3Script: React.FC = () => {
   const frame = useCurrentFrame();
   const sceneOpacity = interpolate(frame, [0, 12, 285, 300], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const sectionStart = (i: number) => 20 + i * 58;
-  const allDone = frame >= sectionStart(MOCK_SCRIPT.sections.length);
+  // "Done" only once the LAST section finishes typing (cps 90 → 3 chars/frame),
+  // not merely when its panel appears — otherwise the badge flips mid-typewriter.
+  const lastIdx = MOCK_SCRIPT.sections.length - 1;
+  const lastText = MOCK_SCRIPT.sections[lastIdx].lines.join(" ");
+  const allDoneFrame = sectionStart(lastIdx) + 6 + Math.ceil(lastText.length / (90 / 30));
+  const allDone = frame >= allDoneFrame;
 
   return (
     <AbsoluteFill style={{ opacity: sceneOpacity }}>
@@ -46,7 +51,7 @@ export const Scene3Script: React.FC = () => {
         </div>
 
         {allDone && (
-          <AnimatedEntry delay={sectionStart(MOCK_SCRIPT.sections.length)} style={{ marginTop: 20 }}>
+          <AnimatedEntry delay={allDoneFrame} style={{ marginTop: 20 }}>
             <div style={{ display: "flex", gap: 12 }}>
               <Badge tone="indigo">{MOCK_SCRIPT.wordCount} words</Badge>
               <Badge tone="neutral">⏱ {MOCK_SCRIPT.estimatedRuntime}</Badge>

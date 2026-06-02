@@ -8,6 +8,5 @@ export { TypewriterText } from "./TypewriterText";
 export { AnimatedEntry } from "./AnimatedEntry";
 export { Badge } from "./Badge";
 export { ProgressBar } from "./ProgressBar";
-export { StepBadge } from "./StepBadge";
 export { CountUp } from "./CountUp";
 export { Cursor } from "./Cursor";

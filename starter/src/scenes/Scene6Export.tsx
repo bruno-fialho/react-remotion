@@ -8,13 +8,16 @@ export const Scene6Export: React.FC = () => {
   const frame = useCurrentFrame();
   const idea = MOCK_IDEAS.find((i) => i.id === SELECTED_IDEA_ID)!;
   const sceneOpacity = interpolate(frame, [0, 12, 195, 210], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const outro = frame >= 150;
+  // Crossfade: the product window fades out (138–150) as the full-screen end
+  // card fades in (from 140), so the outro is a clean logo moment over the
+  // background — not the logo floating inside the window chrome.
+  const windowOut = interpolate(frame, [138, 150], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
     <AbsoluteFill style={{ opacity: sceneOpacity }}>
-      <AppWindow activeTab="Video">
-        {!outro ? (
-          <>
+      {frame < 152 && (
+        <AbsoluteFill style={{ opacity: windowOut }}>
+          <AppWindow activeTab="Video">
             <SceneHeader icon="🚀" title="Your video is ready! 🎉" subtitle="Predicted performance before you publish" right={<Badge tone="green">Rendered</Badge>} />
             <div style={{ display: "flex", gap: 28 }}>
               <AnimatedEntry delay={25} style={{ flex: 1.2 }}>
@@ -35,18 +38,20 @@ export const Scene6Export: React.FC = () => {
             <AnimatedEntry delay={95} style={{ marginTop: 32, display: "flex", justifyContent: "center" }}>
               <PrimaryButton pulse>🚀 Export & Publish</PrimaryButton>
             </AnimatedEntry>
-          </>
-        ) : (
-          <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }}>
-            <AnimatedEntry delay={150} config="bouncy">
-              <div style={{ ...TEXT.hero, color: C.ink }}>TubeGen<span style={{ color: C.indigo }}>AI</span></div>
-            </AnimatedEntry>
-            <AnimatedEntry delay={162}>
-              <div style={{ ...TEXT.h3, color: C.inkMuted }}>From idea to published video — in minutes.</div>
-            </AnimatedEntry>
-          </AbsoluteFill>
-        )}
-      </AppWindow>
+          </AppWindow>
+        </AbsoluteFill>
+      )}
+
+      {frame >= 140 && (
+        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }}>
+          <AnimatedEntry delay={148} config="bouncy">
+            <div style={{ ...TEXT.hero, color: C.ink }}>TubeGen<span style={{ color: C.indigo }}>AI</span></div>
+          </AnimatedEntry>
+          <AnimatedEntry delay={160}>
+            <div style={{ ...TEXT.h3, color: C.inkMuted }}>From idea to published video — in minutes.</div>
+          </AnimatedEntry>
+        </AbsoluteFill>
+      )}
     </AbsoluteFill>
   );
 };
