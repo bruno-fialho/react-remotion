@@ -1,63 +1,59 @@
 import React from "react";
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { C, FONT, SPRING } from "../design/tokens";
+import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AppWindow, SceneHeader, Panel, AnimatedEntry, Badge, TypewriterText } from "../components";
+import { C, TEXT, FONT } from "../design/tokens";
 import { MOCK_SCRIPT } from "../mock";
 
-/**
- * SCENE 3 — Script Writing (9s / 270 frames)
- *
- * Narrative: TubeGen AI writes the full script section by section.
- *
- * Suggested flow:
- *   0–15f   : Scene fade in
- *   15–40f  : Script editor panel slides in
- *   40–80f  : HOOK section types out
- *   80–130f : INTRO section types out
- *   130–200f: MAIN section types out
- *   200–240f: CTA section types out
- *   240–260f: Word count + "Script complete ✓" badge appears
- *   260–270f: Scene fade out
- *
- * Mock data: import MOCK_SCRIPT from "../mock"
- *
- * Remotion tips:
- *   // Typewriter for a text block
- *   const text = "What if I told you...";
- *   const chars = Math.floor(
- *     interpolate(frame, [startFrame, endFrame], [0, text.length], {
- *       extrapolateLeft: 'clamp', extrapolateRight: 'clamp'
- *     })
- *   );
- *   const visible = text.slice(0, chars);
- *
- *   // Blinking cursor (blinks every 12 frames = ~2.5Hz)
- *   const cursorVisible = Math.floor(frame / 12) % 2 === 0;
- *
- *   // Reveal sections one by one — show section N only after section N-1 is done
- *   const section1Done = chars >= section1Text.length;
- */
+const SECTION_TONES = ["indigo", "indigo", "indigo", "green"] as const;
+
 export const Scene3Script: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // TODO: implement Scene 3
-  void fps;
+  const sceneOpacity = interpolate(frame, [0, 12, 285, 300], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const sectionStart = (i: number) => 20 + i * 58;
+  const allDone = frame >= sectionStart(MOCK_SCRIPT.sections.length);
 
   return (
-    <AbsoluteFill
-      style={{
-        background: C.bg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: C.textPrimary,
-        fontSize: 28,
-        fontFamily: FONT.family,
-      }}
-    >
-      Scene 3 — Script Writing · frame {frame}
-      <br />
-      {MOCK_SCRIPT.wordCount} words · {MOCK_SCRIPT.estimatedRuntime}
+    <AbsoluteFill style={{ opacity: sceneOpacity }}>
+      <AppWindow activeTab="Script">
+        <SceneHeader
+          icon="📝"
+          title="Script Generator"
+          subtitle="Generate engaging video scripts optimized for viewer retention"
+          right={allDone ? <Badge tone="green">{MOCK_SCRIPT.aiConfidence}% AI confidence</Badge> : <Badge tone="indigo">Writing…</Badge>}
+        />
+        <Panel muted style={{ marginBottom: 20 }}>
+          <div style={{ ...TEXT.label, color: C.inkMuted, marginBottom: 6 }}>Your selected title</div>
+          <div style={{ ...TEXT.h3, color: C.ink }}>{MOCK_SCRIPT.title}</div>
+        </Panel>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {MOCK_SCRIPT.sections.map((s, i) => {
+            if (frame < sectionStart(i)) return null;
+            return (
+              <AnimatedEntry key={s.label} delay={sectionStart(i)} y={18}>
+                <Panel>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                    <Badge tone={SECTION_TONES[i]}>[{s.label}]</Badge>
+                    <span style={{ ...TEXT.sm, color: C.inkMuted, fontFamily: FONT.mono }}>{s.timestamp}</span>
+                  </div>
+                  <div style={{ ...TEXT.body, color: C.inkSoft }}>
+                    <TypewriterText text={s.lines.join(" ")} startFrame={sectionStart(i) + 6} cps={90} showCaret={false} />
+                  </div>
+                </Panel>
+              </AnimatedEntry>
+            );
+          })}
+        </div>
+
+        {allDone && (
+          <AnimatedEntry delay={sectionStart(MOCK_SCRIPT.sections.length)} style={{ marginTop: 20 }}>
+            <div style={{ display: "flex", gap: 12 }}>
+              <Badge tone="indigo">{MOCK_SCRIPT.wordCount} words</Badge>
+              <Badge tone="neutral">⏱ {MOCK_SCRIPT.estimatedRuntime}</Badge>
+            </div>
+          </AnimatedEntry>
+        )}
+      </AppWindow>
     </AbsoluteFill>
   );
 };

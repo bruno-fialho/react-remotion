@@ -1,64 +1,46 @@
 import React from "react";
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { C, FONT, SPRING } from "../design/tokens";
+import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AppWindow, SceneHeader, Panel, AnimatedEntry, Badge, CountUp } from "../components";
+import { C, TEXT } from "../design/tokens";
 import { MOCK_IDEAS, SELECTED_IDEA_ID } from "../mock";
 
-/**
- * SCENE 2 — Viral Title Generation (9s / 270 frames)
- *
- * Narrative: TubeGen generates 5 viral video ideas for the channel.
- *
- * Suggested flow:
- *   0–15f   : Scene fade in
- *   15–60f  : "Generating viral ideas…" loading state (spinner / dots)
- *   60–75f  : Idea card 1 slides in from right (or below)
- *   75–90f  : Idea card 2 slides in
- *   90–105f : Idea card 3 slides in
- *   105–120f: Idea card 4 slides in
- *   120–135f: Idea card 5 slides in
- *   135–210f: Selected card (SELECTED_IDEA_ID) gets highlighted glow + border
- *   210–240f: "Selected ✓" badge animates onto the chosen card
- *   240–270f: Scene fade out
- *
- * Mock data: import MOCK_IDEAS, SELECTED_IDEA_ID from "../mock"
- *
- * Remotion tips:
- *   // Staggered card entry
- *   const STAGGER = 15; // frames between cards
- *   MOCK_IDEAS.map((idea, i) => {
- *     const cardProgress = spring({ frame: frame - 60 - i * STAGGER, fps, config: SPRING.smooth });
- *     const translateX = interpolate(cardProgress, [0, 1], [60, 0]);
- *     const opacity    = interpolate(frame - 60 - i * STAGGER, [0, 20], [0, 1], {
- *       extrapolateLeft: 'clamp', extrapolateRight: 'clamp'
- *     });
- *   });
- *
- *   // Glow on selected card
- *   const isSelected = idea.id === SELECTED_IDEA_ID;
- *   const glowOpacity = interpolate(frame, [135, 165], [0, 1], { ... });
- */
 export const Scene2Ideas: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // TODO: implement Scene 2
-  void fps;
+  const sceneOpacity = interpolate(frame, [0, 12, 255, 270], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   return (
-    <AbsoluteFill
-      style={{
-        background: C.bg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: C.textPrimary,
-        fontSize: 28,
-        fontFamily: FONT.family,
-      }}
-    >
-      Scene 2 — Viral Ideas · frame {frame}
-      <br />
-      {MOCK_IDEAS.length} ideas generated · best score: {Math.max(...MOCK_IDEAS.map((i) => i.viralScore))}
+    <AbsoluteFill style={{ opacity: sceneOpacity }}>
+      <AppWindow activeTab="Title">
+        <SceneHeader
+          icon="💡"
+          title="Viral Title Generator"
+          subtitle="5 high-CTR ideas generated in your channel's voice"
+          right={frame < 30 ? <Badge tone="indigo">Generating…</Badge> : <Badge tone="green">5 ideas ready</Badge>}
+        />
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {MOCK_IDEAS.map((idea, i) => {
+            const selected = idea.id === SELECTED_IDEA_ID && frame >= 150;
+            return (
+              <AnimatedEntry key={idea.id} delay={30 + i * 12} y={24}>
+                <Panel active={selected} muted={!selected} style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ ...TEXT.h3, color: C.ink, marginBottom: 6 }}>{idea.title}</div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {idea.tags.map((t) => <Badge key={t} tone="neutral">{t}</Badge>)}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "center", minWidth: 120 }}>
+                    <div style={{ ...TEXT.h1, color: selected ? C.gold : C.inkMuted, fontSize: 44 }}>
+                      {selected ? <CountUp to={idea.viralScore} startFrame={160} durationInFrames={30} /> : idea.viralScore}
+                    </div>
+                    <div style={{ ...TEXT.label, color: C.inkMuted }}>Viral Score</div>
+                  </div>
+                </Panel>
+              </AnimatedEntry>
+            );
+          })}
+        </div>
+      </AppWindow>
     </AbsoluteFill>
   );
 };
