@@ -1,6 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Series } from "remotion";
 import { Background } from "./components";
+import { Soundtrack } from "./audio/Soundtrack";
 import { Scene1Input } from "./scenes/Scene1Input";
 import { Scene2Ideas } from "./scenes/Scene2Ideas";
 import { Scene3Script } from "./scenes/Scene3Script";
@@ -19,6 +20,7 @@ export const TubeGenVideo: React.FC = () => {
   return (
     <AbsoluteFill>
       <Background />
+      <Soundtrack />
       <Series>
         <Series.Sequence durationInFrames={S.scene1}><Scene1Input /></Series.Sequence>
         <Series.Sequence durationInFrames={S.scene2}><Scene2Ideas /></Series.Sequence>
