@@ -63,7 +63,7 @@ export const Scene1Input: React.FC = () => {
         )}
       </AppWindow>
       {frame >= 40 && frame < 90 && (
-        <Cursor from={{ x: 1180, y: 760 }} to={{ x: 1300, y: 330 }} moveStart={45} moveDur={22} clickFrame={70} />
+        <Cursor from={{ x: 1150, y: 680 }} to={{ x: 1512, y: 296 }} moveStart={45} moveDur={22} clickFrame={70} />
       )}
     </AbsoluteFill>
   );
